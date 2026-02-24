@@ -1,2 +1,7 @@
-# Estudo-qrcode
-Estudo realizado sobre como funciona a lógica por trás de um Qr code, tentando aplica-la ao Python.
+QR Code logic generated in Google Colab with Python. The idea came after making a QR code generator with libraries.
+Initially, I realized that the first QR code generator using libraries was faster and did a great job. But if I always build things with libraries, and someone deletes them, I will lose my work and freeze because I won't have the knowledge myself!
+So, I started a new journey: to write code but understand the foundation. But oh my God, making a QR code is complex! First, you need to convert everything into hexadecimal, then clean the code with a limited number of bits.
+After that, we start Galois Field math. At this point, I admit I used Gemini to help because I didn't understand the basis of that math—it's complex! But Gemini only helped with the calculations; the lines of code were built by me!
+Then, more math: the error correction uses the Reed-Solomon code in a finite field (GF). It’s hard to understand this level of math because you have to take the numbers and create others that act as an error tolerance; even if you damage your QR code, you can still read it!
+To start the GF, you begin by encoding the message, then you generate a generator polynomial based on correction symbols. After that, we start a polynomial division and add the code!
+Well, the challenge was not to use libraries, so I didn't use Pillow (PIL). After all that math, I wasn't able to reason through how to make a PNG, so I made a Bitmap (BMP) instead. It’s easier than making a PNG or JPEG file; we just calculate where the pixels will be and generate the file!

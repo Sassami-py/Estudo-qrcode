@@ -38,7 +38,7 @@ class qrcode:
 
   def _padding_apply (self, bit_stream):
     bit_stream += "0000"
-    bit_stream += bit_stream[:72]
+    bit_stream = bit_stream[:72]
     while len(bit_stream) %8 != 0:
       bit_stream += "0"
     pad_bytes = ["11101100", "00010001"]
@@ -46,7 +46,7 @@ class qrcode:
     while len(bit_stream) < 72:
       bit_stream += pad_bytes[i%2]
       i += 1
-    return byte_stream
+    return bit_stream
 
   def _gf_mult (self,a, b):
     if a == 0 or b == 0: return 0
@@ -75,7 +75,7 @@ class qrcode:
 
   def get_final_bits (self):
     raw_bits = self._encode_text()
-    padded = self._apply_padding(raw_bits)
+    padded = self._padding_apply(raw_bits)
     error_bytes = self._generate_error_correction(padded)
     error_bits = "".join(f"{b:08b}" for b in error_bytes)
     return padded + error_bits

@@ -35,3 +35,47 @@ class qrcode:
         bit_stream = f"{group[0]:06b}"
     size_bin = f"{len(self.link):09b}"
     return self.mode+size_bin+bit_stream
+
+  def _padding_apply (self, bit_stream):
+    bit_stream += "0000"
+    bit_stream += bit_stream[:72]
+    while len(bit_stream) %8 != 0:
+      bit_stream += "0"
+    pad_bytes = ["11101100", "00010001"]
+    i = 0
+    while len(bit_stream) < 72:
+      bit_stream += pad_bytes[i%2]
+      i += 1
+    return byte_stream
+
+  def _gf_mult (self,a, b):
+    if a == 0 or b == 0: return 0
+    return self.exp[self.log[a] + self.log[b]]
+
+  def _gf_poly_mul(self,p1,p2):
+    res = [0]*(len(p1)+len(p2)-1)
+    for i in range(len(p1)):
+      if p1[i] != 0:
+        for j in range(len(p2)):
+          res[i+j] ^= self._gf_mult(p1[i], p2[j])
+    return res
+
+  def _generate_error_correction (self, padded_bits):
+    data_bytes = [int(padded_bits[i:i+8],2) for i in range(0,72,8)]
+    g=[1]
+    for i in range(17):
+      g = self._gf_poly_mul(g,[1,self.exp[i]])
+    message = data_bytes+[0]*17
+    for i in range(len(data_bytes)):
+      coef = message[i]
+      if coef != 0:
+        for j in range(len(g)):
+          message[i+j] ^= self._gf_mult(g[j],coef)
+    return message[len(data_bytes):]
+
+  def get_final_bits (self):
+    raw_bits = self._encode_text()
+    padded = self._apply_padding(raw_bits)
+    error_bytes = self._generate_error_correction(padded)
+    error_bits = "".join(f"{b:08b}" for b in error_bytes)
+    return padded + error_bits
